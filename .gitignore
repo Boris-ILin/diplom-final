@@ -5,3 +5,6 @@
 *.retry
 .vscode/
 .idea/
+*.pem
+*.key
+.env
