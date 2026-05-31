@@ -1,0 +1,92 @@
+=== DATE ===
+Вс 31 мая 2026 13:52:27 +08
+
+=== GITHUB ===
+https://github.com/Boris-ILin/diplom-final
+
+=== COMPUTE INSTANCES ===
++----------------------+---------------+---------------+---------+---------------+--------------+
+|          ID          |     NAME      |    ZONE ID    | STATUS  |  EXTERNAL IP  | INTERNAL IP  |
++----------------------+---------------+---------------+---------+---------------+--------------+
+| epdk2s1cc56q50155609 | web-2         | ru-central1-b | RUNNING |               | 10.10.120.28 |
+| fhms84qbuv4drvk3559j | web-1         | ru-central1-a | RUNNING |               | 10.10.110.22 |
+| fv41tueqsuatg7e1mnd3 | kibana        | ru-central1-d | STOPPED |               | 10.10.30.23  |
+| fv42iv53r89spcb09of5 | bastion       | ru-central1-d | RUNNING | 81.26.177.166 | 10.10.30.4   |
+| fv459qd61sllf3b1cek5 | zabbix        | ru-central1-d | STOPPED |               | 10.10.30.15  |
+| fv4fe1sack2io7jfhhvl | elasticsearch | ru-central1-d | STOPPED |               | 10.10.130.28 |
++----------------------+---------------+---------------+---------+---------------+--------------+
+
+
+=== NETWORKS ===
++----------------------+----------------+
+|          ID          |      NAME      |
++----------------------+----------------+
+| enpq4gftvels5fi48nna | diplom-network |
++----------------------+----------------+
+
+
+=== SUBNETS ===
++----------------------+------------------+----------------------+----------------------+---------------+------------------+
+|          ID          |       NAME       |      NETWORK ID      |    ROUTE TABLE ID    |     ZONE      |      RANGE       |
++----------------------+------------------+----------------------+----------------------+---------------+------------------+
+| e2lca97tqptq19hmc01h | diplom-public-b  | enpq4gftvels5fi48nna |                      | ru-central1-b | [10.10.20.0/24]  |
+| e2llplq736ilpuoju6d4 | diplom-private-b | enpq4gftvels5fi48nna | enpabc9q23rd6hals1ts | ru-central1-b | [10.10.120.0/24] |
+| e9bchkm10f0ppkh4855n | diplom-private-a | enpq4gftvels5fi48nna | enpabc9q23rd6hals1ts | ru-central1-a | [10.10.110.0/24] |
+| e9bnd4gd2kqut71k7o3i | diplom-public-a  | enpq4gftvels5fi48nna |                      | ru-central1-a | [10.10.10.0/24]  |
+| fl8cutrk1sqsvt0239d8 | diplom-private-d | enpq4gftvels5fi48nna | enpabc9q23rd6hals1ts | ru-central1-d | [10.10.130.0/24] |
+| fl8ruv44u93tkgken2vr | diplom-public-d  | enpq4gftvels5fi48nna |                      | ru-central1-d | [10.10.30.0/24]  |
++----------------------+------------------+----------------------+----------------------+---------------+------------------+
+
+
+=== SECURITY GROUPS ===
++----------------------+---------------------------------+--------------------------------+----------------------+
+|          ID          |              NAME               |          DESCRIPTION           |      NETWORK-ID      |
++----------------------+---------------------------------+--------------------------------+----------------------+
+| enp97h519lkbj42hsmt1 | diplom-elasticsearch-sg         |                                | enpq4gftvels5fi48nna |
+| enpi2e75pjac3q5tdi36 | diplom-alb-sg                   |                                | enpq4gftvels5fi48nna |
+| enpjh62dqptjufpncrjt | diplom-kibana-sg                |                                | enpq4gftvels5fi48nna |
+| enpkkueu6m2aksh7njb1 | diplom-zabbix-sg                |                                | enpq4gftvels5fi48nna |
+| enppiofier4jh1abov0j | diplom-web-sg                   |                                | enpq4gftvels5fi48nna |
+| enpv9j0u877ui9gjrbc2 | diplom-bastion-sg               |                                | enpq4gftvels5fi48nna |
+| enpvo236e6r7eopdjg2e | default-sg-enpq4gftvels5fi48nna | Default security group for     | enpq4gftvels5fi48nna |
+|                      |                                 | network                        |                      |
++----------------------+---------------------------------+--------------------------------+----------------------+
+
+
+=== TARGET GROUPS ===
++----------------------+------------------+---------------------+-------------+--------------+
+|          ID          |       NAME       |       CREATED       |  REGION ID  | TARGET COUNT |
++----------------------+------------------+---------------------+-------------+--------------+
+| enpgjut4lt0gg68vivbt | web-target-group | 2026-05-31 04:56:11 | ru-central1 |            2 |
++----------------------+------------------+---------------------+-------------+--------------+
+
+
+=== NETWORK LOAD BALANCERS ===
++----------------------+---------+-------------+----------+----------------+------------------------+--------+
+|          ID          |  NAME   |  REGION ID  |   TYPE   | LISTENER COUNT | ATTACHED TARGET GROUPS | STATUS |
++----------------------+---------+-------------+----------+----------------+------------------------+--------+
+| enp205h62um00jle7rku | web-nlb | ru-central1 | EXTERNAL |              1 | enpgjut4lt0gg68vivbt   | ACTIVE |
++----------------------+---------+-------------+----------+----------------+------------------------+--------+
+
+
+=== NLB TARGET STATES ===
++----------------------+--------------+---------+
+|      SUBNET ID       |   ADDRESS    | STATUS  |
++----------------------+--------------+---------+
+| e2llplq736ilpuoju6d4 | 10.10.120.28 | HEALTHY |
+| e9bchkm10f0ppkh4855n | 10.10.110.22 | HEALTHY |
++----------------------+--------------+---------+
+
+
+=== CURL NLB ===
+NLB_IP=158.160.166.10
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sun, 31 May 2026 05:53:02 GMT
+Content-Type: text/html
+Content-Length: 229
+Last-Modified: Tue, 26 May 2026 12:19:13 GMT
+Connection: keep-alive
+ETag: "6a158fc1-e5"
+Accept-Ranges: bytes
+
