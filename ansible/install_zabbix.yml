@@ -1,0 +1,82 @@
+---
+- name: Install Zabbix server with Docker
+  hosts: zabbix_servers
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - curl
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: true
+    - name: Create docker network
+      command: docker network create zabbix-net
+      register: network_result
+      failed_when: network_result.rc != 0 and "already exists" not in network_result.stderr
+      changed_when: network_result.rc == 0
+
+    - name: Create postgres volume
+      command: docker volume create zabbix-postgres-data
+      changed_when: false
+    - name: Run PostgreSQL container
+      command: >
+        docker run -d --name zabbix-postgres
+        --restart unless-stopped
+        --network zabbix-net
+        -e POSTGRES_DB=zabbix
+        -e POSTGRES_USER=zabbix
+        -e POSTGRES_PASSWORD=zabbix_password_123
+        -v zabbix-postgres-data:/var/lib/postgresql/data
+        postgres:15-alpine
+      register: postgres_run
+      failed_when: postgres_run.rc != 0 and "Conflict" not in postgres_run.stderr
+      changed_when: postgres_run.rc == 0
+    - name: Run Zabbix server container
+      command: >
+        docker run -d --name zabbix-server
+        --restart unless-stopped
+        --network zabbix-net
+        -p 10051:10051
+        -e DB_SERVER_HOST=zabbix-postgres
+        -e POSTGRES_DB=zabbix
+        -e POSTGRES_USER=zabbix
+        -e POSTGRES_PASSWORD=zabbix_password_123
+        zabbix/zabbix-server-pgsql:ubuntu-6.0-latest
+      register: zabbix_server_run
+      failed_when: zabbix_server_run.rc != 0 and "Conflict" not in zabbix_server_run.stderr
+      changed_when: zabbix_server_run.rc == 0
+    - name: Run Zabbix web container
+      command: >
+        docker run -d --name zabbix-web
+        --restart unless-stopped
+        --network zabbix-net
+        -p 80:8080
+        -e DB_SERVER_HOST=zabbix-postgres
+        -e POSTGRES_DB=zabbix
+        -e POSTGRES_USER=zabbix
+        -e POSTGRES_PASSWORD=zabbix_password_123
+        -e ZBX_SERVER_HOST=zabbix-server
+        -e PHP_TZ=Europe/Moscow
+        zabbix/zabbix-web-nginx-pgsql:ubuntu-6.0-latest
+      register: zabbix_web_run
+      failed_when: zabbix_web_run.rc != 0 and "Conflict" not in zabbix_web_run.stderr
+      changed_when: zabbix_web_run.rc == 0
+    - name: Show running containers
+      command: docker ps
+      register: docker_ps
+      changed_when: false
+
+    - name: Print docker ps
+      debug:
+        var: docker_ps.stdout_lines
