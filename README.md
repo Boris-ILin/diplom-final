@@ -145,4 +145,96 @@ diplom-final
     nginx
     Network Load Balancer
 
+## Мониторинг Zabbix
 
+Для мониторинга инфраструктуры добавлен отдельный сервер Zabbix.
+
+В Terraform-инфраструктуру добавлена виртуальная машина zabbix, а для установки Zabbix используется Ansible playbook
+
+ ansible/install_zabbix.yml
+
+Также в Ansible inventory добавлена группа
+
+  zabbix_servers
+
+Проверка работы контейнеров Zabbix через Ansible
+
+![Zabbix containers](screenshots/screenshot4.png)
+
+Веб-интерфейс Zabbix доступен и работает
+
+![Zabbix web interface](screenshots/screenshot5.png)
+
+
+
+##  Логирование nginx
+
+Для настройки логирования nginx добавлен Ansible playbook
+
+  ansible/setup_logs.yml
+
+Playbook выполняет следующие действия
+
+  устанавливает logrotate
+  проверяет наличие каталога  /var/log/nginx
+  настраивает ротацию логов nginx
+  выводит список файлов логов nginx
+
+Конфигурация ротации логов создается по пути
+
+ /etc/logrotate.d/nginx-diplom
+
+ Ротация применяется к файлам
+
+ /var/log/nginx/*.log
+
+
+
+##  Snapshot-диски
+
+Для создания snapshot-дисков добавлен Terraform-файл
+
+ terraform/snapshots.tf
+
+В Terraform добавлен ресурс расписания snapshot
+
+ yandex_compute_snapshot_schedule.daily_snapshots
+
+После применения конфигурации Terraform показывает, что инфраструктура соответствует описанию:
+
+![Terraform no changes](screenshots/screenshot6.png)
+
+Также через terraform output  выводится идентификатор расписания snapshot
+
+![Terraform output snapshot](screenshots/screenshot7.png)
+
+Дополнительная проверка outputs Terraform
+
+![Terraform raw outputs](screenshots/screenshot8.png)
+
+
+
+## Terraform outputs
+
+После доработки Terraform выводит основные адреса и идентификаторы
+
+  внешний IP балансировщика
+  внешний IP bastion
+  внешний IP Zabbix
+  внутренние FQDN серверов
+  идентификатор snapshot schedule.
+
+На скриншотах видно, что Zabbix получил внешний адрес, а snapshot schedule создан и доступен через output.
+
+
+P.S. Проект был выполнен и доработан насколько это было возможно в текущих условиях. Из-за отсутствия восстановленных грантов
+Yandex Cloud дальнейшее содержание инфраструктуры происходило за счет личных средств, поэтому после выполнения проверок
+ресурсы были остановлены.
+Все основные результаты работы и доработок приложены в виде скриншотов.
+![Yandex cloud](screenshots/screenshot9.png)
+
+![Yandex cloud](screenshots/screenshot10.png)
+
+![Yandex cloud](screenshots/screenshot11.png)
+
+![Yandex cloud](screenshots/screenshot12.png)
